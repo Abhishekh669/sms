@@ -2,23 +2,15 @@
 
 import { cn } from "@/lib/utils"
 import { type IconType } from "react-icons/lib"
-import {  ChevronRight, type LucideIcon  } from "lucide-react"
+import {  type LucideIcon  } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
 
@@ -46,7 +38,7 @@ export function NavMain({
                 tooltip={item.title} 
                 className={cn(pathname.includes(item.url) && "bg-gray-200/80")}
                 onClick={()=>{
-                  router.push(`/sms/${item.url}`)
+                  router.push(`/sms/admin/${item.url}`)
                 }}
               >
                 {item.icon && <item.icon />}

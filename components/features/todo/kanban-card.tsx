@@ -41,8 +41,8 @@ function KanbanCard({ task, isDragging }: KanbanCardProps) {
             label={`${format(task.date, "yyyy-M-d")} ${format(task.date, "p")}`}
           >
             <div className="flex h-6 items-center gap-2 ">
-              <CalendarIcon className="text-slate-500 size-4" />
-              <CardDescription>{format(task.date, "yyyy-M-d")}</CardDescription>
+              <CalendarIcon className=" size-3 text-slate-500 lg:size-4 " />
+              <CardDescription className="text-xs lg:text-sm">{format(task.date, "yyyy-M-d")}</CardDescription>
             </div>
           </Hint>
           <CardDescription

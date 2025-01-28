@@ -1,16 +1,15 @@
 "use server"
 import * as z from "zod"
 import {prisma} from "@/lib/prisma"
-import { get_current_user, get_logged_user } from "../users/users"
+import { get_current_user } from "../users/users"
 import { TaskStatus, TaskTag, todoSchema } from "@/schemas"
-import { describe } from "node:test"
 
 
 export const create_todo = async(values : z.infer<typeof todoSchema>)=>{
     console.log(values)
     try {
         const current_user = await get_current_user();
-        if(!current_user?.id || !current_user?.email){
+        if(!current_user?.id || !current_user?.email || !current_user?.isVerified){
             throw new Error("Unauthorized")
         }
 
@@ -78,7 +77,6 @@ export const get_todos_by_id = async() =>{
                 userId : current_user?.id
             }
         })
-        console.log("this is the new todos",todos);
         
         return {
             message : "got todods",
@@ -168,4 +166,42 @@ export const update_todo = async(values : update_todo_props) =>{
         
     }
 
+}
+
+
+interface delete_todo_props{
+    userId : string, 
+    todoId : string
+}
+
+
+export const delete_todo = async(values : delete_todo_props) =>{
+    try {
+        const current_user = await get_current_user();
+        if(current_user?.id !== values.userId || !current_user?.email){
+        throw new Error("Unauthorized")
+
+        }
+        const deleted_todo = await prisma.todo.findUnique({
+            where : {id : values.todoId}
+        })
+        if(!deleted_todo){
+            return {error  :"Failed to delete the todo"}
+        }
+        const now_delete = await prisma.todo.delete({
+            where : {
+                id : values.todoId,
+                userId : values.userId
+            }
+        });
+        if(!now_delete){
+            return {error : "Failed to delete the todo"}
+        }
+        return {
+            message : "Successfully deleted todo",
+            deleted_todo : JSON.stringify(now_delete)
+        }
+    } catch (error) {
+        return {error : "failed to delete the todo"}
+    }
 }

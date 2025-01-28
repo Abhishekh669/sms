@@ -147,11 +147,11 @@ export const DataKanban = ({data, onChange} : DataKanbanProps) =>{
         <DragDropContext
         onDragEnd={onDragEnd}
        >
-        <div className="flex w-full">
+        <div className="flex w-full  justify-evenly">
             {boards.map((board) =>(
                 <div
                     key={board}
-                    className=" flex-1 mx-2 bg-muted px-2 py-3"
+                    className=" flex-1 md:flex-0 md:justify-center max-w-full md:max-w-[400px]  mx-2 bg-muted px-2 py-3 rounded-md"
                 >
                     <div>
                     <KanbanColumnHeader

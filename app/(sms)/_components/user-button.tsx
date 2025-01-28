@@ -8,7 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { useGetLoggedInUser } from "@/utils/hooks/query-hooks/use-get-logged-user"
+import { useGetLoggedInUser } from "@/utils/hooks/query-hooks/user/use-get-logged-user"
 
 
 

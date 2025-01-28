@@ -10,6 +10,38 @@ export const formSchema = z.object({
   }),
 })
 
+export const onboardingSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email({
+      message: "Please enter a valid email address.",
+    }),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(10, {
+      message: "Please enter a valid phone number.",
+    })
+    .max(10, {
+      message: "Phone number must be exactly 10 digits.",
+    }),
+  username: z
+    .string()
+    .trim()
+    .min(3, { message: "Minimum 3 characters are required" })
+    .max(30, { message: "Maximum of 30 characters is allowed" }),
+  guardianName: z
+    .string()
+    .trim()
+    .min(3, { message: "Minimum 3 characters are required" })
+    .max(30, { message: "Maximum of 30 characters is allowed" }),
+  address: z
+    .string()
+    .trim()
+    .min(3, { message: "Minimum 3 characters are required" })
+    .max(40, { message: "Maximum of 40 characters is allowed" }),
+});
 export const register_schema = z.object({
   email: z.string().trim().email({
     message: "Please enter a valid email address.",

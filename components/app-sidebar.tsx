@@ -5,6 +5,7 @@ import { LiaChalkboardTeacherSolid } from "react-icons/lia";
 import {
   BookOpen,
   GalleryVerticalEnd,
+  Key,
   LayoutDashboardIcon,
   ListTodo,
   Settings2,
@@ -22,7 +23,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { useGetLoggedInUser } from "@/utils/hooks/query-hooks/use-get-logged-user"
+import { useGetLoggedInUser } from "@/utils/hooks/query-hooks/user/use-get-logged-user"
 import { Separator } from "./ui/separator"
 
 const data = {
@@ -68,6 +69,12 @@ const data = {
       title: "Todo",
       url: "todo",
       icon: ListTodo,
+      
+    },
+    {
+      title: "Authorize",
+      url: "authorize",
+      icon: Key,
       
     },
     {

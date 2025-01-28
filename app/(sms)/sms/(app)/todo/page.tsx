@@ -1,6 +1,6 @@
 "use client"
 import Todo from '@/components/features/todo/todo';
-import { useGetTodosById } from '@/utils/hooks/query-hooks/use-get-todos-by-id';
+import { useGetTodosById } from '@/utils/hooks/query-hooks/todo/use-get-todos-by-id';
 import { Loader } from 'lucide-react';
 import React from 'react'
 
