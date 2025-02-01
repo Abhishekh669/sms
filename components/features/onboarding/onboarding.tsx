@@ -1,124 +1,374 @@
-"use client";
-
-import React, { useState } from "react";
-import { z } from "zod";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeftSquare, X } from "lucide-react";
+"use client"
+import React, { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { onboardingSchema } from "@/schemas";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ImageIcon, Loader2 } from "lucide-react";
+import { onboardingSchema, Role } from "@/schemas"; // Assuming this schema includes a role field
+import * as z from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useOnboarding } from "@/utils/hooks/mutate-hooks/onboarding/use-onboarding";
+import toast from "react-hot-toast";
 
 
 
-type FormData = z.infer<typeof onboardingSchema>; // Generate TypeScript type from Zod schema
 
-const formFields = [
-  { name: "username" as const, label: "Username", type: "text" },
-  { name: "email" as const, label: "Official Email", type: "email" },
-  { name: "phoneNumber" as const, label: "Phone Number", type: "tel" },
-  { name: "address" as const, label: "Address", type: "textarea" },
-  { name: "guardianName" as const, label: "Guardian Name", type: "text" },
-];
 
-export default function InteractiveOnboardingForm() {
-  const [step, setStep] = useState(0);
+interface OnboardingProps {
+  onboardingOption: boolean;
+}
 
+type FormData = z.infer<typeof onboardingSchema>;
+
+function OnboardingPage({ onboardingOption }: OnboardingProps) {
+  const [open, setOpen] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const { mutate: onboard_user, isPending : onboarding } = useOnboarding();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role>(Role.STUDENT); // Track role selection
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const classes_list = [
+    { value: 1, label: "One" },
+    { value: 2, label: "Two" },
+    { value: 3, label: "Three" },
+    { value: 4, label: "Four" },
+    { value: 5, label: "Five" },
+    { value: 6, label: "Six" },
+    { value: 7, label: "Seven" },
+    { value: 8, label: "Eight" },
+    { value: 9, label: "Nine" },
+    { value: 10, label: "Ten" },
+    { value: 11, label: "Eleven" },
+    { value: 12, label: "Twelve" },
+  ] ;
   const {
     register,
     handleSubmit,
+    setValue,
+    reset,
     formState: { errors },
-    trigger,
   } = useForm<FormData>({
     resolver: zodResolver(onboardingSchema),
-    mode: "onChange",
+    defaultValues: {
+      name: "",
+      phoneNumber: "",
+      guardianName: "",
+      email: "",
+      address: "",
+      qualification: "",
+      role: "student",
+      class : "one"
+       // Default value for role
+
+    },
   });
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log(data);
-  };
-
-  const nextStep = async () => {
-    // Validate the current step's field
-    const isStepValid = await trigger(formFields[step].name);
-    if (isStepValid) {
-      setStep((prev) => Math.min(prev + 1, formFields.length - 1));
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = (values) => {
+    const new_data = {
+      ...values,
+      image: image || "",
+    };
+    onboard_user({
+      ...new_data,
+      image,
+    },{
+      onSuccess : (res) =>{
+        if(res.message && res.result){
+          toast.success(res.message)
+          // reset();
+        }else if(res.error){
+          toast.error(res.error)
+        }
+      },
+      onError : (err) =>{
+        toast.success(err.message || "Failed to do onboarding")
+      }
+    });
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Open Onboarding Form</Button>
-      </DialogTrigger>
-      <DialogContent className=" max-w-md mx-auto top-1/2 transform -translate-y-1/2">
-        <button
-          onClick={() => setStep(0)}
-          className=" text-gray-500 hover:text-gray-700"
-        >
-          {step !== 0 &&(
-            <ArrowLeftSquare size={24} />
-          )}
-        </button>
-        <DialogTitle className="text-2xl font-bold mb-4">
-          Complete Your Profile
-        </DialogTitle>
-        <div className="mb-4 bg-gray-200 rounded-full h-2.5">
-          <div
-            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
-            style={{ width: `${((step + 1) / formFields.length) * 100}%` }}
-          ></div>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {formFields.map((field, index) => (
-            <div key={field.name} className={step === index ? "block" : "hidden"}>
-              <label
-                htmlFor={field.name}
-                className="block text-sm font-medium text-gray-700"
-              >
-                {field.label}
+    <Dialog open={onboardingOption}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Onboarding</DialogTitle>
+          <DialogDescription>Update user details</DialogDescription>
+        </DialogHeader>
+        <div>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Name
               </label>
-              {field.type === "textarea" ? (
-                <textarea
-                  {...register(field.name)}
-                  id={field.name}
-                  rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
-              ) : (
-                <Input
-                  {...register(field.name)}
-                  id={field.name}
-                  type={field.type}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                />
+              <Input
+                placeholder="Enter name"
+                {...register("name")}
+                disabled={onboarding}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
-              {errors[field.name] && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors[field.name]?.message}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <Input
+                placeholder="Enter phone number"
+                {...register("phoneNumber")}
+                disabled={onboarding}
+              />
+              {errors.phoneNumber && (
+                <p className="text-sm text-red-500">
+                  {errors.phoneNumber.message}
                 </p>
               )}
             </div>
-          ))}
-          <div className="flex justify-between mt-6">
-            {step > 0 && (
-              <Button type="button" onClick={prevStep} variant="outline">
-                Previous
-              </Button>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Guardian Name
+              </label>
+              <Input
+                placeholder="Enter guardian name"
+                {...register("guardianName")}
+                disabled={onboarding}
+              />
+              {errors.guardianName && (
+                <p className="text-sm text-red-500">
+                  {errors.guardianName.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input
+                placeholder="Enter email"
+                {...register("email")}
+                disabled={onboarding}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Address
+              </label>
+              <Textarea
+                placeholder="Enter address"
+                {...register("address")}
+                disabled={onboarding}
+              />
+              {errors.address && (
+                <p className="text-sm text-red-500">{errors.address.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Qualification
+              </label>
+              <Input
+                placeholder="Enter qualification"
+                {...register("qualification")}
+                disabled={onboarding}
+              />
+              {errors.qualification && (
+                <p className="text-sm text-red-500">
+                  {errors.qualification.message}
+                </p>
+              )}
+            </div>
+
+            {/* Role select field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <Select
+                disabled={onboarding}
+                onValueChange={(value: Role) => {
+                  setValue("role", value);
+                  setSelectedRole(value); // Update the selected role
+                }}
+                defaultValue={Role.STUDENT}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={Role.TEACHER}>Teacher</SelectItem>
+                  <SelectItem value={Role.STUDENT}>Student</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-sm text-red-500">{errors.role.message}</p>
+              )}
+            </div>
+
+            {/* Conditional "Class" field for students */}
+            {selectedRole === "student" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Class
+                </label>
+                <Select
+                  disabled={onboarding}
+                 onValueChange={(value) => {
+                  setValue("class", value);
+                }}
+                defaultValue={classes_list[0].label} // Adjust based on loading state if necessary
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                   {classes_list.map((item)=>(
+                    <SelectItem
+                      key={item.label}
+                      value={item.label}
+                      >
+                        {item.value}
+                        </SelectItem>
+                   ))}
+                  </SelectContent>
+                </Select>
+                {errors.class && (
+                  <p className="text-sm text-red-500">{errors.class.message}</p>
+                )}
+              </div>
             )}
-            {step < formFields.length - 1 ? (
-              <Button type="button" onClick={nextStep}>
-                Next
-              </Button>
-            ) : (
-              <Button type="submit">Submit</Button>
-            )}
-          </div>
-        </form>
+
+            {/* File upload and button sections */}
+            <div className="flex justify-evenly items-center">
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" 
+                    disabled={onboarding}
+                  >Upload Image</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle className="w-full">Upload Image</DialogTitle>
+                    <DialogDescription>
+                      Choose an image file to upload. You can drag and drop or
+                      click to select.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div
+                    className="mt-4 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                  >
+                    {preview ? (
+                      <img
+                        src={preview || "/placeholder.svg"}
+                        alt="Preview"
+                        className="max-h-40 mb-4"
+                      />
+                    ) : (
+                      <ImageIcon className="w-12 h-12 text-gray-400 mb-4" />
+                    )}
+                    <Label htmlFor="image" className="cursor-pointer">
+                      {image ? image.name : "Click to select or drag an image here"}
+                    </Label>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileChange}
+                      ref={fileInputRef}
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={() => setOpen(false)} disabled={!image}>
+                      Upload
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              <div>
+                {image ? <span>{image.name}</span> : <span>No file selected</span>}
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105"
+            >
+              {onboarding ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update User"
+              )}
+            </Button>
+          </form>
+        </div>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button className="w-full"
+            disabled={onboarding}
+            >Cancel</Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
+export default OnboardingPage;

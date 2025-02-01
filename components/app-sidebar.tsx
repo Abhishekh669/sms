@@ -8,9 +8,11 @@ import {
   Key,
   LayoutDashboardIcon,
   ListTodo,
+  Loader,
   Settings2,
   UserRoundCheck,
   Users,
+  Users2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -25,6 +27,8 @@ import {
 } from "@/components/ui/sidebar"
 import { useGetLoggedInUser } from "@/utils/hooks/query-hooks/user/use-get-logged-user"
 import { Separator } from "./ui/separator"
+import { useUserById } from "@/utils/hooks/query-hooks/user/use-get-user-by-id";
+import { User } from "@prisma/client";
 
 const data = {
   teams: 
@@ -34,6 +38,7 @@ const data = {
       plan: "Enterprise",
     },
   navMain: [
+    
     {
       title: "Dashboard",
       url: "dashboard",
@@ -41,10 +46,15 @@ const data = {
       
     },
     {
+      title: "Manage Users",
+      url: "manage-users",
+      icon: Users2,
+      isAdmin : true
+    },
+    {
       title: "Teachers",
       url: "teachers",
       icon: LiaChalkboardTeacherSolid,
-      
     },
     {
       title: "Students",
@@ -55,13 +65,13 @@ const data = {
    
     {
       title: "Subjects",
-      url: "#",
+      url: "subjects",
       icon: BookOpen,
       
     },
     {
       title: "Attendance",
-      url: "#",
+      url: "attendance",
       icon: UserRoundCheck,
       
     },
@@ -75,11 +85,12 @@ const data = {
       title: "Authorize",
       url: "authorize",
       icon: Key,
+      isAdmin : true,
       
     },
     {
       title: "Settings",
-      url: "#",
+      url: "settings",
       icon: Settings2,
     },
    
@@ -87,14 +98,23 @@ const data = {
  
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {data : session} = useGetLoggedInUser();
+export function AppSidebar({user, user_loading ,isAdmin, ...props }: React.ComponentProps<typeof Sidebar> & {user : User} & {user_loading : boolean} & {isAdmin : boolean}) {
+
   
- const new_data = {...data, user : {
-  name : session?.user?.name as string,
-  email : session?.user?.email as string,
-  avatar : session?.user?.image as string
- }}
+  
+  const new_data = {
+    ...data,
+    user: {
+      name: user?.name as string,
+      email: user?.email as string,
+      avatar: user?.image as string,
+    },
+    navMain: data.navMain.filter((item) => {
+      return !item.isAdmin || (item.isAdmin && user?.isAdmin && isAdmin);
+    }),
+  };
+
+ 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -102,7 +122,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <Separator />
       <SidebarContent>
-        <NavMain items={data.navMain}  />
+        
+        {user_loading ? (
+           <div className=" h-full w-full flex justify-center items-center">
+           <Loader className="size-5 animate-spin text-muted-foreground" />
+         </div>
+        ) : (
+          <NavMain items={new_data.navMain} />
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={new_data.user} />

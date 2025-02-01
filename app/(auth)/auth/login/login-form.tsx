@@ -27,7 +27,6 @@ export default function LoginPage() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("data : ",values)
   }
 
   const handleSocialLogin = async (action: string) => {

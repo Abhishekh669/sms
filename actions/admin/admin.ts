@@ -5,7 +5,6 @@ import { get_current_user } from "../users/users";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
-import axios from "axios";
 import { cookies } from "next/headers";
 
 interface create_admin_props {
@@ -34,7 +33,6 @@ export const create_admin = async (values: create_admin_props) => {
       };
     }
     const no_of_admin = await prisma.admin.findMany();
-    console.log("no of admin : ", no_of_admin);
 
     if (no_of_admin.length > 2) {
       return {
@@ -59,7 +57,7 @@ export const create_admin = async (values: create_admin_props) => {
       admin: JSON.stringify(new_admin),
     };
   } catch (error) {
-    return { error: "Failed to login" };
+    return { error: "Failed to create" };
   }
 };
 
@@ -122,3 +120,40 @@ export const fetch_token = async () => {
     return { error: "Failed to get token" };
   }
 };
+
+
+export const fetch_unverified_user = async()=>{
+  try {
+    const current_user = await get_current_user();
+    if(!current_user?.id || !current_user?.email ||  !current_user?.isAdmin){
+      return {
+        error : "Not authorized"
+      }
+    };
+
+    const find_students = await prisma.student.findMany({
+      where : {
+        isOnBoarded : true,
+        isVerified : false,
+      }
+    }) || [];
+
+    const find_teachers = await prisma.teacher.findMany({
+      where : {
+        isOnBoarded : true,
+        isVerified : false
+      }
+    })|| [];
+
+    const results = [...find_students, ...find_teachers];
+    const final_result = results?.filter((result)=> result.userId !== current_user?.id)
+    return {
+      message : "Got all the unverified users",
+      result : JSON.stringify(final_result),
+    }
+    
+  } catch (error) {
+    return {error : "Failed to fetch unverified user"}
+    
+  }
+}

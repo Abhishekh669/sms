@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/utils/providers/query-provider";
 import AuthProvider from "@/utils/providers/auth-provider";
-import  { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
+import { JotaiProvider } from "@/utils/providers/jotai-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +31,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </QueryProvider>
+        <JotaiProvider>
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
+          </QueryProvider>
+        </JotaiProvider>
       </body>
     </html>
   );

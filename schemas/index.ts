@@ -10,38 +10,7 @@ export const formSchema = z.object({
   }),
 })
 
-export const onboardingSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .email({
-      message: "Please enter a valid email address.",
-    }),
-  phoneNumber: z
-    .string()
-    .trim()
-    .min(10, {
-      message: "Please enter a valid phone number.",
-    })
-    .max(10, {
-      message: "Phone number must be exactly 10 digits.",
-    }),
-  username: z
-    .string()
-    .trim()
-    .min(3, { message: "Minimum 3 characters are required" })
-    .max(30, { message: "Maximum of 30 characters is allowed" }),
-  guardianName: z
-    .string()
-    .trim()
-    .min(3, { message: "Minimum 3 characters are required" })
-    .max(30, { message: "Maximum of 30 characters is allowed" }),
-  address: z
-    .string()
-    .trim()
-    .min(3, { message: "Minimum 3 characters are required" })
-    .max(40, { message: "Maximum of 40 characters is allowed" }),
-});
+
 export const register_schema = z.object({
   email: z.string().trim().email({
     message: "Please enter a valid email address.",
@@ -95,3 +64,45 @@ export enum TaskTag {
 }
 
 
+export enum Role{
+  TEACHER="teacher",
+  STUDENT="student",
+  GUEST="guest",
+}
+
+
+
+
+export const onboardingSchema = z.object({
+  image: z
+    .string()
+    .url("Please enter a valid URL for the image")
+    .optional(),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than or equal to 100 characters"),
+  phoneNumber: z
+    .string()
+    .min(10, "Phone number must be at least 10 characters")
+    .max(15, "Phone number must be less than or equal to 15 characters")
+    .regex(/^\+?[1-9]\d{1,14}$/, "Phone number is not valid"), // Regex for international phone number format
+  guardianName: z
+    .string()
+    .min(1, "Guardian name is required")
+    .max(100, "Guardian name must be less than or equal to 100 characters"),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .max(100, "Email must be less than or equal to 100 characters"),
+  address: z
+    .string()
+    .min(1, "Address is required")
+    .max(255, "Address must be less than or equal to 255 characters"),
+  qualification: z
+    .string()
+    .min(1, "Qualification is required")
+    .max(100, "Qualification must be less than or equal to 100 characters"),
+  role : z.enum(['teacher', 'student', "guest"]),
+  class : z.string().optional(),
+});

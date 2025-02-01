@@ -15,10 +15,11 @@ export async function POST(request :NextRequest){
         if(!current_user?.id || !current_user?.email || !current_user?.isAdmin){
             return NextResponse.json({error : "Unauthorized"})
         }
+        console.log(" iam here")
         const req_body  = await request.json();
         const {email, password} = req_body;
 
-          const find_admin = await prisma.admin.findFirst({
+        const find_admin = await prisma.admin.findFirst({
                 where : {userId : current_user?.id,email : email}
             });
         
@@ -27,13 +28,11 @@ export async function POST(request :NextRequest){
 
             }
 
-            console.log("this is found admin okie ",find_admin);
         
             const isMatch = await compare(
                 password,
                 find_admin.password
             );
-            console.log("passowrd matched : ?",isMatch)
             if(!isMatch){
                 return NextResponse.json({error : "Failed to login"})
             }

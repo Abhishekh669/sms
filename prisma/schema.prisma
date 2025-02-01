@@ -30,14 +30,16 @@ model User {
   isAdmin       Boolean?
   allowCreate   Boolean?
   isVerified    Boolean?  @default(false)
-  isOnBoarded   Boolean?  @default(false)
+  isOnBoarded    Boolean?  @default(false)
   accounts      Account[]
   sessions      Session[]
   todoIds       String[]  @db.ObjectId
   todos         Todo[]    @relation("UserTodos")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  Student       Student[]
+  studentId      Student[]
+  teacherId       Teacher[]
+  role  Role?
 }
 
 model Account {
@@ -100,18 +102,50 @@ enum State {
   DONE
 }
 
+enum Role{
+  Student
+  Teacher
+  Admin
+}
+
 model Student {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   image        String?
+  image_url   String?
   createdAt    DateTime @default(now())
   isVerified   Boolean? @default(false)
-  isOnboarded  Boolean? @default(false)
-  studentName  String
+  isOnBoarded   Boolean? @default(false)
+  name  String
+  phoneNumber  String
+  role Role
+  guardianName String
+  email        String?
+  address      String
+  qualification String
+  class        String
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Teacher {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  image        String?
+  image_url  String?
+  createdAt    DateTime @default(now())
+  isVerified   Boolean? @default(false)
+  isOnBoarded  Boolean? @default(false)
+  name   String
   phoneNumber  String
   guardianName String
   email        String?
   address      String
-  class        Int
+  qualification String
+  role Role
+  classTeacher  String?
   userId       String   @db.ObjectId
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+

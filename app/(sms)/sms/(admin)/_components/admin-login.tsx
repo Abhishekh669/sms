@@ -23,6 +23,9 @@ export default function AdminLogin() {
   const {data : admin_data, isLoading : admin_loading} = useGetAdmin();
   const {mutate : create_admin} = useCreateAdmin();
   
+  
+
+  
 
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,6 +35,7 @@ export default function AdminLogin() {
       password: "",
     },
   })
+  const create = admin_data?.all_admin == 0 ? true : false;
 
 
 
@@ -39,13 +43,11 @@ export default function AdminLogin() {
   
     setIsLoading(true);
     try {
-      const create = admin_data?.all_admin == 0 ? true : false;
-      console.log(create)
       if(create){
         create_admin(values,{
           onSuccess : (res) =>{
             if(res.message && res.admin){
-              toast.success("Created successfully")
+              toast.success("You can login now ");
             }
             else{
               toast.error(res.error)
@@ -61,7 +63,7 @@ export default function AdminLogin() {
           .then((res)=>{
              if(res.data.message== "logged in success" && res.data.success == true){
               toast.success("logged in successfully");
-              router.push("/sms/admin/dashboard")
+              router.push("/sms/dashboard")
              }else{
               toast.error("Failed to login")
              }
@@ -71,6 +73,7 @@ export default function AdminLogin() {
     } catch (error) {
     } finally {
       setIsLoading(false);
+      form.reset();
     }
   }
   if(admin_loading){
@@ -86,7 +89,7 @@ export default function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">
       <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
         <div className="p-8 flex flex-col gap-y-4">
-          <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">Login </h2>
+          <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-6">{create ? "Register" : "Login"} </h2>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -123,10 +126,13 @@ export default function AdminLogin() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
+                    {create ? "Creating..." : "Logging in..."}
                   </>
                 ) : (
-                  "Log in"
+                  <>
+                  {create ? "Register" : "Log in"}
+                  
+                  </>
                 )}
               </Button>
             </form>

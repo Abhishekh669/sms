@@ -141,9 +141,8 @@ export const DataKanban = ({data, onChange} : DataKanbanProps) =>{
     onChange(updatedPayload);
 
     },[onChange])
-    console.log("tasks : ",tasks)
     return (
-       <div className="flex justify-center pt-10   h-full">
+       <div className="flex justify-center pt-4   h-full">
         <DragDropContext
         onDragEnd={onDragEnd}
        >
@@ -151,7 +150,7 @@ export const DataKanban = ({data, onChange} : DataKanbanProps) =>{
             {boards.map((board) =>(
                 <div
                     key={board}
-                    className=" flex-1 md:flex-0 md:justify-center max-w-full md:max-w-[400px]  mx-2 bg-muted px-2 py-3 rounded-md"
+                    className=" flex-1 md:flex-0      mx-2 bg-muted px-2 py-3 rounded-md"
                 >
                     <div>
                     <KanbanColumnHeader
@@ -164,7 +163,7 @@ export const DataKanban = ({data, onChange} : DataKanbanProps) =>{
                     >
                         {(provided)=>(
                             <div 
-                                className="   flex flex-col gap-y-4 pt-3"
+                                className="   flex flex-col gap-y-4 pt-3 overflow-x-hidden"
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
 

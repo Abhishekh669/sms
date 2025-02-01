@@ -32,7 +32,6 @@ import { useTodoState } from "./store/use-todo-state";
 function TodoForm() {
     const [open ,setOpen] = useCreateTodoModal();
     const [new_state, setNewState] = useTodoState();
-    console.log("current state : ",new_state)
   const { mutate: createTodo, isPending: todoLoading } = useCreateTodo();
   const {
     register,
@@ -54,7 +53,6 @@ function TodoForm() {
   }
 
   const onSubmit = async (values: z.infer<typeof todoSchema>) => {
-    console.log(values);
     await createTodo({...values, state : new_state}, {
       onSuccess: (res) => {
         if (res.message && res.todo) {

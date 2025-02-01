@@ -1,7 +1,7 @@
 
 
 //for admin 
-export const adminRoute = ["/admin/dashboard", "/admin/verification"]
+export const adminRoute = ["authorize","manage-users"]
 
 
 //auth route 

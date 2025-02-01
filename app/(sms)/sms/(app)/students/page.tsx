@@ -1,9 +1,10 @@
+import StudentPage from '@/components/features/students/student-page'
 import React from 'react'
 
 function Student() {
   return (
     <div>
-      thisis students page
+      <StudentPage />
     </div>
   )
 }

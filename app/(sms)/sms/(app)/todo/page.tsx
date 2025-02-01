@@ -7,7 +7,7 @@ import React from 'react'
 function TodoPage() {
   const {data :todos, isLoading : todos_loading } = useGetTodosById();
   return (
-    <div className='w-full h-full p-2'>
+    <div className='w-full h-full  p-2'>
         
         {todos_loading ? (
           <div className='w-full h-full flex items-center justify-center'>

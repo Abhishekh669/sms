@@ -40,13 +40,10 @@ export const {
   secret : process.env.AUTH_SECRET,
   callbacks : {
 
-   
-  
-
      async session({session,token}){
-      
       if(token ){
         session.user.id = token.sub as string;
+        
       }
       return session;
     }

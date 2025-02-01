@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "./auth";
 import { adminRoute, authRoute, protectedRoute, publicRoute } from "./lib/routes";
+import { fetch_token } from "./actions/admin/admin";
 
 
 export async function middleware(request : NextRequest){
@@ -30,7 +31,6 @@ export async function middleware(request : NextRequest){
 
 
     
-    console.log(" public route : ",isPublicRoute)
     return null;
 }
 
